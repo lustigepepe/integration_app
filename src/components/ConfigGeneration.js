@@ -194,9 +194,15 @@ const ConfigGeneration = (props) => {
                     </div>
                 </ConfigSetting>
                 <SimpleFlexWrapper>
+<<<<<<< HEAD
                     <InputField placeholder="Input Config: openX-sizes [...]" marginT='-10px' onChange={(e) => setInConfig(e.target.value)} />
                     < DistanceInput />
                     <InputField placeholder="Input Slots config: [...]" marginT='-10px' value={inSlots} onChange={(e) => setInSlots(e.target.value)} />
+=======
+                    <InputField placeholder="Input Config: openX" marginT='-10px' onChange={(e) => setInConfig(e.target.value)} />
+                    < DistanceInput />
+                    <InputField placeholder="Input Slots config:" marginT='-10px' value={inSlots} onChange={(e) => setInSlots(e.target.value)} />
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
                 </SimpleFlexWrapper>
                 <OutputField style={{ color: (output === "Output") ? " grey" : null }} dangerouslySetInnerHTML={{ __html: output }}></OutputField>
                 {/* <Button name={"Generate"} onClick={generate} top="14px" justify="flex-end" /> */}

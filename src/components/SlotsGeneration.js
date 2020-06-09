@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+<<<<<<< HEAD
 import { InputArea, OutputArea, Warning } from '../styles/InputOutputFields';
+=======
+import { InputArea, OutputArea } from '../styles/InputOutputFields';
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 // import { Button } from '../styles/Buttons';
 import { Slider } from '../styles/molecules/Slider';
 import { fontSetting } from '../styles/LabelAndFont';
@@ -98,6 +102,25 @@ const Distance = styled.div`
     width: 15px;
 `;
 
+<<<<<<< HEAD
+=======
+const Warning = styled.div`
+    position: relative;
+    margin-bottom: ${props => props.marginB ? props.marginB : '0px'};
+    &::after{
+        position: absolute;
+    }
+    top: ${props => props.top ? props.top : '0px'};
+    font-weight: 900;
+    ${fontSetting};
+    color: #c82333;
+    background-color: #e0abb0;
+    border-radius: 4px;
+    padding: 2px 0 2px 4px;
+    display: ${props => props.show ? 'block' : 'none'};
+`;
+
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 
 const SlotsGeneration = () => {
     // Declare a new state variable, which we'll call "count"
@@ -148,6 +171,7 @@ const SlotsGeneration = () => {
         } if (ignore) {
             unit.ignore = ignore;
         } if (size) {
+<<<<<<< HEAD
             unit.size = size.replace(/(\r?\n|\r)* (\s)*/g, '');
         }
         if (sizeMapping) {
@@ -155,6 +179,15 @@ const SlotsGeneration = () => {
         }
         if (targeting) {
             unit.targeting = targeting.replace(/(\r?\n|\r)* (\s)*/g, '');
+=======
+            unit.size = size;
+        }
+        if (sizeMapping) {
+            unit.sizeMapping = sizeMapping;
+        }
+        if (targeting) {
+            unit.targeting = targeting;
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         }
         return unit;
     }
@@ -165,7 +198,11 @@ const SlotsGeneration = () => {
         if (Object.keys(unit).length > 0) {
             _slots.push(unit)
             if (output)
+<<<<<<< HEAD
                 setOutput("slots: " + JSON.stringify(_slots));
+=======
+                setOutput("slots: " + _slots.slots);
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         }
     }
 
@@ -188,10 +225,17 @@ const SlotsGeneration = () => {
         if (isForConfigGChecked) {
             navigate('config', { state: { slots: slots } });
         } else {
+<<<<<<< HEAD
             setOutput("slots: " + JSON.stringify(slots));
         }
         if (isClipBChecked) {
             setClipboard("slots: " + JSON.stringify(slots));
+=======
+            setOutput("slots: " + slots);
+        }
+        if (isClipBChecked) {
+            setClipboard("slots: " + slots);
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         }
     }
 
@@ -274,6 +318,10 @@ const SlotsGeneration = () => {
         }
 
         if (isFault) return;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         switch (event.target.id) {
             case 'button1':
                 addToSlotsAndOutput(true);
@@ -295,7 +343,11 @@ const SlotsGeneration = () => {
                     </ConfigSetting>
                 </ConfigWrapper>
                 <UnitName marginLR='0' onChange={(e) => setUnitName(e.target.value)} />
+<<<<<<< HEAD
                 <Warning show={warUnitName} top='-40px' marginB='50px' >Unit name is required</Warning>
+=======
+                <Warning show={warUnitName} top='-40px'>Unit name is required</Warning>
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 
                 <StandardInput marginLR='0' width='100%' placeholder="Initially expanded" onChange={(e) => setInExpand(e.target.value)} />
                 <Warning show={warInExpand} marginB='10px' >Only boolean type accepted</Warning>
@@ -316,10 +368,17 @@ const SlotsGeneration = () => {
                 <Warning show={warIgnore} marginB='10px' >Only boolean type accepted</Warning>
 
                 <DistanceInput />
+<<<<<<< HEAD
                 <InputField placeholder="Size [...]" height="15%" onChange={(e) => setSize(e.target.value)} />
                 <Warning show={warSize} top='10px' marginB='10px' >Size is required</Warning>
                 <InputField placeholder="Size Mapping [...]" onChange={(e) => setSizeMapping(e.target.value)} />
                 <InputField placeholder="Targeting {...}" onChange={(e) => setTargeting(e.target.value)} />
+=======
+                <InputField placeholder="Size" height="15%" onChange={(e) => setSize(e.target.value)} />
+                <Warning show={warSize} top='10px' marginB='10px' >Size is required</Warning>
+                <InputField placeholder="Size Mapping" onChange={(e) => setSizeMapping(e.target.value)} />
+                <InputField placeholder="Targeting" onChange={(e) => setTargeting(e.target.value)} />
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
                 <OutputField style={{ color: (output === "Output") ? " grey" : null }} dangerouslySetInnerHTML={{ __html: output }}></OutputField>
                 <ButtonArea name1={"Add Unit"} name2={"Generate"} color1='#ffc107' onClick={generateOrAdd} top="14px" justify="flex-end" />
             </WrapAreas>

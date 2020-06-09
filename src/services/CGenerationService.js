@@ -186,7 +186,11 @@ const yieldlabTrans = (input, yieldlabIds) => {
                                         rowArr.push(rowSize[0].toString() + "x" + rowSize[1].toString())
                                     })
 
+<<<<<<< HEAD
                                     for (var z = 0; z < rowArr.length; z++) {
+=======
+                                    for (z = 0; z < rowArr.length; z++) {
+>>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
                                         if (yieldlabIds[rowArr[z]]) {
                                             var newObj = {}
                                             newObj.size = item.size;
