@@ -3,7 +3,6 @@ import styled, { css } from 'styled-components'
 import { SimpleFlexWrapper } from './Wrapper'
 import { fontSetting } from './LabelAndFont'
 
-
 const ButtonElement = styled.button`
     min-height: 16px;
     ${fontSetting};
