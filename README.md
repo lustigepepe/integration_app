@@ -4,11 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-<<<<<<< HEAD
 ### `npm start || npm run start || yarn start`
-=======
-### `yarn start`
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 
 
 

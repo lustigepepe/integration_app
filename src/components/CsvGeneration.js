@@ -1,18 +1,12 @@
-<<<<<<< HEAD
 import React, { useState, useEffect, useReducer } from 'react';
 import styled from 'styled-components';
 import { AddButton } from '../styles/Buttons';
 import { InputText, Warning } from '../styles/InputOutputFields';
-=======
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { AddButton } from '../styles/Buttons';
-import { InputText } from '../styles/InputOutputFields';
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 import { SimpleFlexWrapper, WrapAreas } from '../styles/Wrapper';
 import { Button, ButtonElement } from '../styles/Buttons';
 import { generateCsv } from '../services/CsvGenerationService';
 import { csvPlaceholders } from '../services/Helpers';
+import { scrollToFirstPriorityWar } from '../services/GlobalFunctions';
 
 
 const unitMapping = {
@@ -49,10 +43,7 @@ const ComponentUnitWrapper = styled.div`
     display: flex;
     justify-content: center;
 `;
-<<<<<<< HEAD
 
-=======
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 const InputWrapper = styled.div`
 `;
 
@@ -76,10 +67,7 @@ const WebStiteInput = (props) => (
     <ComponentWrapper>
         <InputWrapper >
             <InputText placeholder={props.placeholder} width={props.width} value={props.value} {...props} />
-<<<<<<< HEAD
             {/* <Warning show={props.warning} top='10px' marginB='10px' >{props.warMessage}</Warning> */}
-=======
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         </InputWrapper>
     </ComponentWrapper>
 );
@@ -116,80 +104,55 @@ const AddUnits = (props) => (
 );
 
 const transformUnit = (unit) => {
-<<<<<<< HEAD
     try {
         for (var _unit in unitMapping) {
             unit = unit.replace(_unit, unitMapping[_unit]);
-=======
-
-
-    try {
-        for (var unit in unitMapping) {
-            unit = unit.replace(unit, unitMapping[unit]);
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         }
     } catch (e) {
         console.log(e);
     }
-<<<<<<< HEAD
-=======
-
-    console.log('ooo: ', unit);
-
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
     return unit;
 }
 
 const transformSizes = (size) => {
-<<<<<<< HEAD
     var resultStr = '';
     if (typeof size === 'string') {
         resultStr = size.charAt(0).toUpperCase() + size.slice(1);
-=======
-
-
-    var resultStr = '';
-    if (typeof size === 'string') {
-        resultStr = size;
-
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
     } else {
         size.forEach((el) => {
             if (!(typeof el === 'string')) {
                 resultStr += el[0] + 'x' + el[1] + ',';
-<<<<<<< HEAD
             } else {
                 resultStr += el.charAt(0).toUpperCase() + el.slice(1) + ',';
-=======
-                console.log('resultStr0', el[0]);
-
-            } else {
-                resultStr += el + ',';
-                console.log('resultStr', el);
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
             }
         })
     }
 
     if (resultStr.charAt(resultStr.length - 1) === ',')
         resultStr = resultStr.substr(0, resultStr.length - 1);
-<<<<<<< HEAD
     return resultStr;
 }
 
 const CsvGeneration = (props) => {
-    const [units, dispatch] = useReducer(reducer, [{ unit: '', sizes: '', placement: '', website: '' }]);
+    const [units, dispatch] = useReducer(reducer, [{ unit: '', sizes: '', placement: '', website: '', war: false, }]);
     const [website, setWebsite] = useState('');
     const [unitPrefix, setUnitPrefix] = useState('');
     const [mountDone, setMountDone] = useState(false);
-
     const [warInUnitPrefix, setWarInUnitPrefix] = useState(false);
     const [warInWebsite, setWarInWebsite] = useState(false);
+
+    const warMap = { InWebsite: 1, InUnitPrefix: 2 };
+    var exposedWar = [];
 
     function reducer(state = [], action) {
         switch (action.type) {
             case 'update':
-                return state.map((el, pos) => { return pos != action.pos ? el : action.data });
+                return state.map((el, pos) => {
+                    if (pos == action.pos) {
+                        el[action.dataSet] = action.data[action.dataSet];
+                    }
+                    return el;
+                });
             case 'add':
                 return [...state, action.data];
             case 'delete':
@@ -207,41 +170,58 @@ const CsvGeneration = (props) => {
     const generate = () => {
         if (!website) {
             setWarInWebsite(true);
+            exposedWar.push('InWebsite');
         }
         if (!unitPrefix) {
             setWarInUnitPrefix(true);
+            exposedWar.push('InUnitPrefix');
+
         }
-        if (!website || !unitPrefix)
+        if (!website || !unitPrefix) {
+            if (exposedWar.length > 0)
+                scrollToFirstPriorityWar(warMap, exposedWar);
             return;
-=======
+        }
 
 
-    return resultStr;
-}
-
-
-const CsvGeneration = (props) => {
-    const [units, setUnits] = useState([{ unit: '', sizes: '', placement: '', website: '' }]);
-    const [website, setWebsite] = useState('');
-    const [unitPrefix, setUnitPrefix] = useState('');
-
-    const generate = () => {
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
-        units.forEach(el => {
+        var _units = units.map((el) => ({ ...el }));
+        var incomplete = false;
+        _units.forEach((el, index) => {
             el.website = website;
+            if (!(!el.unit && !el.sizes) && (!el.unit || !el.sizes)) {
+                const action = { type: 'update', pos: index, dataSet: 'war' };
+                const data = { war: true };
+                action.data = data;
+                dispatch(action);
+
+                exposedWar.push(el.unit);
+                incomplete = true;
+            }
             el.unit = (unitPrefix + el.unit).trim();
         });
-        generateCsv([...units]);
+
+        _units = _units.filter((el, index) => {
+            return el.unit && el.sizes;
+        });
+        if (incomplete) {
+            scrollToFirstPriorityWar(warMap, exposedWar);
+            return;
+        }
+        generateCsv(_units);
     }
-<<<<<<< HEAD
+
     useEffect(() => {
         if (warInUnitPrefix)
-            if (unitPrefix)
+            if (unitPrefix) {
                 setWarInUnitPrefix(false);
+                exposedWar = exposedWar.filter(el => el !== 'InUnitPrefix');
+            }
 
         if (warInWebsite)
-            if (website)
+            if (website) {
                 setWarInWebsite(false);
+                exposedWar = exposedWar.filter(el => el !== 'InWebsite');
+            }
 
         if (props.location.state.slots && !mountDone) {
             setMountDone(true);
@@ -249,21 +229,11 @@ const CsvGeneration = (props) => {
             const _units = [];
 
             slots.forEach((el, index) => {
-=======
-
-    useEffect(() => {
-
-        if (props.location.state.slots) {
-            const slots = props.location.state.slots;
-            const _units = [];
-            slots.forEach((el, index) => {
-                // const [units, setUnits] = useState([{ unit: '', sizes: '', placement: '', website: '' }]);
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
                 var tempOb = {};
                 tempOb.unit = transformUnit(el.unit);
                 tempOb.sizes = transformSizes(el.size);
                 tempOb.placement = '';
-<<<<<<< HEAD
+                tempOb.war = false;
                 _units.push(tempOb);
             });
             dispatch({ type: 'setAll', data: _units });
@@ -279,7 +249,7 @@ const CsvGeneration = (props) => {
     }
 
     const unitChanged = (event) => {
-        const action = { type: 'update', pos: event.target.name };
+        const action = { type: 'update', pos: event.target.name, dataSet: (event.target.placeholder !== csvPlaceholders.PLACEMENT ? event.target.placeholder : 'placement').toLowerCase() };
         const data = {};
         switch (event.target.placeholder) {
             case csvPlaceholders.UNIT:
@@ -292,83 +262,39 @@ const CsvGeneration = (props) => {
                 data.placement = event.target.value;
         }
         action.data = data;
-        dispatch(action)
-=======
+        dispatch(action);
 
-                _units.push(tempOb);
-            });
-            console.log('kkk: ', ' ', _units);
-            setUnits(_units);
+        // only for warnings
+        if (units[event.target.name].war) {
+            const actionWar = { type: 'update', pos: event.target.name, dataSet: 'war' };
+            const dataWar = { war: false };
+            actionWar.data = dataWar;
+            dispatch(actionWar);
         }
-    }, []);
-
-    const removeUnit = (event) => {
-        const _units = [];
-        for (var unitTemp in units) {
-            if (unitTemp === event.target.name) {
-                continue;
-            } else {
-                _units.push(units[unitTemp]);
-            }
-        }
-        setUnits(_units);
-    }
-
-    const addUnit = (event) => {
-        var _units = [...units];
-        _units.push({ unit: '', sizes: '', placement: '' });
-        setUnits(_units);
-    }
-
-    const unitChanged = (event) => {
-        var _unit = units[event.target.name];
-
-        // var unitsSt = JSON.stringify(units);
-        // var _units = JSON.parse(unitsSt);
-        // var _unit = _units[event.target.name];
-        // console.log('units', units, 'name', event.target.name);
-        switch (event.target.placeholder) {
-            case csvPlaceholders.UNIT:
-                _unit.unit = event.target.value;
-                break;
-            case csvPlaceholders.SIZES:
-                _unit.sizes = event.target.value;
-                break;
-            case csvPlaceholders.PLACEMENT:
-                _unit.placement = event.target.value;
-                break;
-            case csvPlaceholders.PREFIX:
-
-        }
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
     }
     return (
         <SimpleFlexWrapper top="30px">
             <WrapAreas adjust="true">
-<<<<<<< HEAD
-                <WebStiteInput value={website}  /* warning={warInWebsite} warMessage='Website name required' */ placeholder={csvPlaceholders.WEBSITE} onChange={(e) => setWebsite(e.target.value)} />
+                <WebStiteInput id='InWebsite' value={website}  /* warning={warInWebsite} warMessage='Website name required' */ placeholder={csvPlaceholders.WEBSITE} onChange={(e) => setWebsite(e.target.value)} />
                 <ComponentWrapper>
                     <Warning show={warInWebsite} top='-30px' marginB='10px' >Website name required</Warning>
                 </ComponentWrapper>
 
-                <WebStiteInput value={unitPrefix} /* warning={warInUnitPrefix} warMessage='Unit prefix required' */ placeholder="Unit 'prefix-'" onChange={(e) => setUnitPrefix(e.target.value)} />
+                <WebStiteInput id='InUnitPrefix' value={unitPrefix} /* warning={warInUnitPrefix} warMessage='Unit prefix required' */ placeholder="Unit 'prefix-'" onChange={(e) => setUnitPrefix(e.target.value)} />
                 <ComponentWrapper>
                     <Warning show={warInUnitPrefix} marginB='10px' top='-30px' >Unit prefix required</Warning>
                 </ComponentWrapper>
 
                 {units.map((el, index) => (
-                    <AddUnits key={el + index} pos={index} unit={el.unit || ''} sizes={el.sizes || ''} placements={el.placements || ''} onChange={unitChanged} removeUnit={removeUnit} />
-=======
-                <WebStiteInput value={website} placeholder={csvPlaceholders.WEBSITE} onChange={(e) => setWebsite(e.target.value)} />
-                <WebStiteInput value={unitPrefix} placeholder='Unit prefix' onChange={(e) => setUnitPrefix(e.target.value)} />
-                {units.map((ele, index) => (
-                    <AddUnits key={ele + index} pos={index} /* unit={unit} sizes={sizes} placements={placements} */ onChange={unitChanged} removeUnit={removeUnit} />
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+                    <div key={el + index} >
+                        <AddUnits id={el.unit} key={el + index + 'unit'} pos={index} unit={el.unit || ''} sizes={el.sizes || ''} placement={el.placement || ''} onChange={unitChanged} removeUnit={removeUnit} />
+                        <Warning key={el + index + 'war'} show={el.war} marginB='10px' top='4px' margin=' 0 0 0 10px' >Check inputs</Warning>
+                    </div>
                 ))}
                 <AddButton justify={'center'} top={'50px'} onClick={addUnit} />
                 <GenerateButton name={"Generate"} onClick={generate} top="80px" justify="center" />
             </WrapAreas>
-        </SimpleFlexWrapper>
+        </SimpleFlexWrapper >
     );
 }
 

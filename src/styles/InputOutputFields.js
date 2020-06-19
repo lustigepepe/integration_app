@@ -1,9 +1,5 @@
 import styled from 'styled-components'
-<<<<<<< HEAD
 import { fontSetting } from './LabelAndFont';
-=======
-
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 
 const InputArea = styled.textarea`
     border: 2px solid #1a73e8;
@@ -34,9 +30,9 @@ const InputText = styled.input`
     width: ${props => props.width ? props.width : null};
     `;
 
-<<<<<<< HEAD
 const Warning = styled.div`
     position: relative;
+    margin: ${props => props.margin ? props.margin : '0'};
     margin-bottom: ${props => props.marginB ? props.marginB : '0px'};
     &::after{
         position: absolute;
@@ -52,7 +48,3 @@ const Warning = styled.div`
 `;
 
 export { InputArea, OutputArea, InputText, Warning }
-=======
-
-export { InputArea, OutputArea, InputText }
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155

@@ -1,9 +1,8 @@
 export const generateCsv = (rowData) => {
     const data = [];
     rowData.forEach((ob, index, arr) => {
-
-        var wSitePlacement = ob.website ? ob.website : "" + ob.placement.replace(/,/g, ';');
-        const temp = [ob.unit, ob.unit, ob.sizes, ",", wSitePlacement.trim(), "_blank,"];
+        var wSitePlacement = !ob.placement ? ob.website : ob.website + ";" + ob.placement.replace(/,/g, ';');
+        const temp = [ob.unit, ob.unit, ob.sizes.replace(/,/g, ';'), ",", wSitePlacement.trim(), "_blank,"];
         data.push(temp);
     });
 

@@ -9,6 +9,7 @@ import { Dropdown } from '../styles/molecules/Dropdown';
 import { configGeneration } from '../services/CGenerationService';
 import { bidder } from '../services/Helpers';
 import { navigate } from "@reach/router";
+import { objectToString } from '../services/GlobalFunctions'
 
 
 const InputField = styled(InputArea)`
@@ -83,6 +84,7 @@ const ConfigGeneration = (props) => {
     const [inSsp, setSsp] = useState('criteo');
     const [inPageName, setInPageName] = useState('');
     const sspNames = [];
+
     for (let [key, value] of Object.entries(bidder)) {
         sspNames.push(value);
     }
@@ -92,7 +94,7 @@ const ConfigGeneration = (props) => {
 
     useEffect(() => {
         if (props.location.state.slots)
-            setInSlots(JSON.stringify(props.location.state.slots));
+            setInSlots(props.location.state.slots);
     }, []);
 
     const inputFromValue = (configString, slotString, pageName) => {
@@ -110,6 +112,7 @@ const ConfigGeneration = (props) => {
         }
         if (typeof slotString === "string") {
             _slots = slotString.replace(/([a-zA-Z0-9]+?):/g, '"$1":');
+            _slots = _slots.replace(/:([a-zA-Z0-9]+?)/g, ':"$1"');
             _slots = _slots.replace(/'/g, '"');
             try {
                 _slots = JSON.parse(_slots);
@@ -117,6 +120,7 @@ const ConfigGeneration = (props) => {
             } catch (ex) {
                 alert('Slots are not valid JSON \nPlease check the console for more detail');
                 console.error(ex);
+                return { configData: {}, latePageN: "" };
             }
         }
         if (typeof _slots === "string")
@@ -127,11 +131,11 @@ const ConfigGeneration = (props) => {
             try {
                 _latePageN = true;
                 pageName = window.prompt('Please insert page name');
+                setInPageName(pageName);
             } catch (ex) {
                 console.error(ex);
             }
         }
-
         return { configData: { config: _config ? _config : [], slots: _slots ? _slots : [], pageName }, latePageN: _latePageN };
 
     }
@@ -142,22 +146,24 @@ const ConfigGeneration = (props) => {
             console.error("Unable to write to clipboard.");
         });
     }
-
     const generate = (outputOn) => {
         const { configData, latePageN } = inputFromValue(inConfig, inSlots, inPageName);
+        if (Object.keys(configData).length === 0 && configData.constructor === Object) {
+            return;
+        }
         const outText = configGeneration(configData, inSsp, isRopChecked);
         if (outputOn) {
-            setOutput(outText);
+            setOutput(objectToString(JSON.parse(outText)));
             if (isClipBChecked) {
                 if (latePageN) {
                     // after windows function prompt it takes a while for using the windows navigator!
-                    setTimeout(() => { setClipboard(outText); }, 180)
+                    setTimeout(() => { setClipboard(objectToString(JSON.parse(outText))); }, 200)
                 } else {
-                    setClipboard(outText);
+                    setClipboard(objectToString(JSON.parse(outText)));
                 }
             }
         }
-        return outText;
+        // return 'objectToString(JSON.parse(outText))';
     }
 
     const toCsv = (output) => {
@@ -167,8 +173,9 @@ const ConfigGeneration = (props) => {
             _slots = JSON.parse(_slots);
         } catch (ex) {
             console.error(ex);
+            return;
         }
-        navigate('csv', { state: { slots: _slots} });
+        navigate('csv', { state: { slots: _slots } });
     }
 
     const generateOrToCsv = (event) => {
@@ -194,15 +201,9 @@ const ConfigGeneration = (props) => {
                     </div>
                 </ConfigSetting>
                 <SimpleFlexWrapper>
-<<<<<<< HEAD
                     <InputField placeholder="Input Config: openX-sizes [...]" marginT='-10px' onChange={(e) => setInConfig(e.target.value)} />
                     < DistanceInput />
                     <InputField placeholder="Input Slots config: [...]" marginT='-10px' value={inSlots} onChange={(e) => setInSlots(e.target.value)} />
-=======
-                    <InputField placeholder="Input Config: openX" marginT='-10px' onChange={(e) => setInConfig(e.target.value)} />
-                    < DistanceInput />
-                    <InputField placeholder="Input Slots config:" marginT='-10px' value={inSlots} onChange={(e) => setInSlots(e.target.value)} />
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
                 </SimpleFlexWrapper>
                 <OutputField style={{ color: (output === "Output") ? " grey" : null }} dangerouslySetInnerHTML={{ __html: output }}></OutputField>
                 {/* <Button name={"Generate"} onClick={generate} top="14px" justify="flex-end" /> */}

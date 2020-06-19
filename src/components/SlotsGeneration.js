@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-<<<<<<< HEAD
 import { InputArea, OutputArea, Warning } from '../styles/InputOutputFields';
-=======
-import { InputArea, OutputArea } from '../styles/InputOutputFields';
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 // import { Button } from '../styles/Buttons';
 import { Slider } from '../styles/molecules/Slider';
 import { fontSetting } from '../styles/LabelAndFont';
@@ -12,6 +8,7 @@ import { InputText } from '../styles/InputOutputFields';
 import { ColumnFlexWrapper, SimpleFlexWrapper, WrapAreas } from '../styles/Wrapper';
 import { Dropdown } from '../styles/molecules/Dropdown';
 // import { configGenration } from '../services/ConfigGeneration'
+import { objectToString, scrollToFirstPriorityWar } from '../services/GlobalFunctions'
 import { configGeneration } from '../services/CGenerationService';
 import { bidder } from '../services/Helpers';
 import { StandardInput } from '../styles/molecules/StandardInput';
@@ -20,6 +17,7 @@ import { navigate } from "@reach/router"
 import { ButtonElement } from '../styles/Buttons';
 import { relative } from 'upath';
 import { truncate } from 'fs';
+import { transform } from '@babel/core';
 const InputField = styled(InputArea)`
     flex: 0 0 ${props => props.height ? props.height : '30%'};
     margin-top: 14px;
@@ -38,14 +36,15 @@ const UnitNameWrapper = styled.div`
 
 const ButtonArea = (props) => (
     <SimpleFlexWrapper justify={props.justify} top={props.top} style={{ marginBottom: '50px' }} >
-        <ButtonElement id='button1' bColor={props.color1} {...props} >{props.name1}</ButtonElement>
+        <ButtonElement id='button0' bColor={props.color0} {...props} >{props.name0}</ButtonElement>
+        <ButtonElement id='button1' bColor={props.color1} marginL='15px' {...props} >{props.name1}</ButtonElement>
         <ButtonElement id='button2' bColor={props.color2} marginL='15px' {...props} >{props.name2}</ButtonElement>
     </SimpleFlexWrapper>
 );
 
 const UnitName = (props) => (
     <UnitNameWrapper>
-        <InputText marginLR={props.marginLR} style={{ width: '100%' }} placeholder="Unit name" {...props} />
+        <InputText marginLR={props.marginLR} style={{ width: '100%' }} placeholder="Unit name" value={props.value} {...props} />
     </UnitNameWrapper>
 );
 
@@ -102,25 +101,8 @@ const Distance = styled.div`
     width: 15px;
 `;
 
-<<<<<<< HEAD
-=======
-const Warning = styled.div`
-    position: relative;
-    margin-bottom: ${props => props.marginB ? props.marginB : '0px'};
-    &::after{
-        position: absolute;
-    }
-    top: ${props => props.top ? props.top : '0px'};
-    font-weight: 900;
-    ${fontSetting};
-    color: #c82333;
-    background-color: #e0abb0;
-    border-radius: 4px;
-    padding: 2px 0 2px 4px;
-    display: ${props => props.show ? 'block' : 'none'};
-`;
 
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+
 
 const SlotsGeneration = () => {
     // Declare a new state variable, which we'll call "count"
@@ -148,6 +130,9 @@ const SlotsGeneration = () => {
     const [warLazyLoad, setWarLazyLoad] = useState(false);
     const [warIgnore, setWarIgnore] = useState(false);
 
+    const warMap = { UnitName: 1, InExpand: 2, PriorityLoad: 3, CollapseEDiv: 4, HeaderBidding: 5, LazyLoad: 6, Ignore: 7, Size: 8, SizeMapping: 9, Targeting: 10 };
+    var exposedWar = [];
+
     const sspNames = [];
     for (let [key, value] of Object.entries(bidder)) {
         sspNames.push(value);
@@ -171,7 +156,6 @@ const SlotsGeneration = () => {
         } if (ignore) {
             unit.ignore = ignore;
         } if (size) {
-<<<<<<< HEAD
             unit.size = size.replace(/(\r?\n|\r)* (\s)*/g, '');
         }
         if (sizeMapping) {
@@ -179,35 +163,39 @@ const SlotsGeneration = () => {
         }
         if (targeting) {
             unit.targeting = targeting.replace(/(\r?\n|\r)* (\s)*/g, '');
-=======
-            unit.size = size;
-        }
-        if (sizeMapping) {
-            unit.sizeMapping = sizeMapping;
-        }
-        if (targeting) {
-            unit.targeting = targeting;
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
         }
         return unit;
     }
+    const clearInputs = () => {
+        setUnitName('');
+        setInExpand('');
+        setPriorityLoad('');
+        setCollapseEDiv('');
+        setHeaderBidding('');
+        setLazyLoad('');
+        setSize('');
+        setSizeMapping('');
+        setTargeting('');
+        setIgnore('');
+    }
 
-    const addToSlotsAndOutput = (ouput) => {
-        const _slots = slots;
+    const toSlotsAndOutput = (outputAdded) => {
+        var _slots = slots;
         const unit = buildUnit();
         if (Object.keys(unit).length > 0) {
-            _slots.push(unit)
-            if (output)
-<<<<<<< HEAD
-                setOutput("slots: " + JSON.stringify(_slots));
-=======
-                setOutput("slots: " + _slots.slots);
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+            if (outputAdded) {
+                _slots.push(unit)
+                setOutput("slots: " + objectToString(_slots));
+                // setOutput("slots: " + JSON.stringify(_slots));
+                // console.log(objectToString(_slots));
+            } else {
+                _slots = [unit];
+            }
         }
     }
 
-    const isBoolean = (data) => {
-        if (data === 'true' || data === 'false') {
+    const isBooleanOrEmpty = (data) => {
+        if (data === 'true' || data === 'false' || data === '') {
             return true;
         }
         return false;
@@ -222,112 +210,148 @@ const SlotsGeneration = () => {
     }
 
     const setGenerateData = () => {
+
         if (isForConfigGChecked) {
-            navigate('config', { state: { slots: slots } });
-        } else {
-<<<<<<< HEAD
-            setOutput("slots: " + JSON.stringify(slots));
+            if (slots.length == 0)
+                navigate('config');
+            else
+                navigate('config', { state: { slots: objectToString(slots) } });
+        } else if (slots.lentgh > 0) {
+            setOutput("slots: " + objectToString(slots));
         }
-        if (isClipBChecked) {
-            setClipboard("slots: " + JSON.stringify(slots));
-=======
-            setOutput("slots: " + slots);
-        }
-        if (isClipBChecked) {
-            setClipboard("slots: " + slots);
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+        if (isClipBChecked && slots.lentgh > 0) {
+            setClipboard("slots: " + objectToString(slots));
         }
     }
 
     useEffect(() => {
+
         if (warUnitName) {
-            if (unitName)
+            if (unitName) {
                 setWarUnitName(false);
+                exposedWar = exposedWar.filter(el => el !== 'UnitName');
+
+            }
         }
         if (warSize) {
-            if (size)
+            if (size) {
                 setWarSize(false);
+                exposedWar = exposedWar.filter(el => el !== 'Size');
+            }
         }
         if (warInExpand) {
-            if (isBoolean(inExpand)) {
+            if (isBooleanOrEmpty(inExpand)) {
                 setWarInExpand(false);
+                exposedWar = exposedWar.filter(el => el !== 'InExpand');
             }
         }
         if (warPriorityLoad)
-            if (isBoolean(priorityLoad))
+            if (isBooleanOrEmpty(priorityLoad)) {
                 setWarPriorityLoad(false);
-        if (warCollapseEDiv)
-            if (isBoolean(collapseEDiv))
+                exposedWar = exposedWar.filter(el => el !== 'PriorityLoad');
+            }
+        if (warCollapseEDiv) {
+            if (isBooleanOrEmpty(collapseEDiv)) {
                 setWarCollapseEDiv(false);
+                exposedWar = exposedWar.filter(el => el !== 'CollapseEDiv');
+            }
+        }
         if (warHeaderBidding)
-            if (isBoolean(headerBidding))
+            if (isBooleanOrEmpty(headerBidding)) {
                 setWarHeaderBidding(false);
+                exposedWar = exposedWar.filter(el => el !== 'HeaderBidding');
+            }
         if (warLazyLoad)
-            if (isBoolean(lazyLoad))
+            if (isBooleanOrEmpty(lazyLoad)) {
                 setWarLazyLoad(false);
+                exposedWar = exposedWar.filter(el => el !== 'LazyLoad');
+            }
         if (warIgnore)
-            if (isBoolean(ignore))
+            if (isBooleanOrEmpty(ignore)) {
                 setIgnore(false);
-
+                exposedWar = exposedWar.filter(el => el !== 'Ignore');
+            }
     });
 
     const generateOrAdd = (event) => {
         var isFault = false;
-
-        if (!unitName)
-            setWarUnitName(true);
-        if (!size)
-            setWarSize(true);
-
-        if (!size || !unitName)
-            isFault = true;
-
-        if (inExpand) {
-            console.log('inBoolean ööö', isBoolean(inExpand));
-            if (!isBoolean(inExpand)) {
-                setWarInExpand(true);
-                isFault = true;
-            }
-        } if (priorityLoad) {
-            if (!isBoolean(priorityLoad)) {
-                setWarPriorityLoad(true);
-                isFault = true;
-            }
-        } if (collapseEDiv) {
-            if (!isBoolean(collapseEDiv)) {
-                setWarCollapseEDiv(true);
-                isFault = true;
-            }
-        } if (headerBidding) {
-            if (!isBoolean(headerBidding)) {
-                setWarHeaderBidding(true);
-                isFault = true;
-            }
-        } if (lazyLoad) {
-            if (!isBoolean(lazyLoad)) {
-                setWarLazyLoad(true);
-                isFault = true;
-
-            }
-        } if (ignore) {
-            if (!isBoolean(ignore)) {
-                setWarIgnore(true);
-                isFault = true;
-
+        if (event.target.id === 'button2') {
+            if (!unitName && !inExpand && !priorityLoad && !collapseEDiv && !headerBidding && !lazyLoad && !ignore && slots.length > 0) {
+                setGenerateData();
             }
         }
 
-        if (isFault) return;
-<<<<<<< HEAD
-=======
+        if (event.target.id === 'button1' || (event.target.id === 'button2' && slots.length == 0)) {
+            if (!unitName) {
+                setWarUnitName(true);
+                exposedWar.push('UnitName');
+            }
+            if (!size) {
+                setWarSize(true);
+                exposedWar.push('Size');
+            }
 
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+            if (!size || !unitName)
+                isFault = true;
+
+
+            if (inExpand) {
+                if (!isBooleanOrEmpty(inExpand)) {
+                    setWarInExpand(true);
+                    isFault = true;
+                    exposedWar.push('InExpand');
+                }
+            } if (priorityLoad) {
+                if (!isBooleanOrEmpty(priorityLoad)) {
+                    setWarPriorityLoad(true);
+                    isFault = true;
+                    exposedWar.push('PriorityLoad');
+                }
+            } if (collapseEDiv) {
+                if (!isBooleanOrEmpty(collapseEDiv)) {
+                    setWarCollapseEDiv(true);
+                    isFault = true;
+                    exposedWar.push('CollapseEDiv');
+                }
+            } if (headerBidding) {
+                if (!isBooleanOrEmpty(headerBidding)) {
+                    setWarHeaderBidding(true);
+                    isFault = true;
+                    exposedWar.push('HeaderBidding');
+                }
+            } if (lazyLoad) {
+                if (!isBooleanOrEmpty(lazyLoad)) {
+                    setWarLazyLoad(true);
+                    isFault = true;
+                    exposedWar.push('LazyLoad');
+
+                }
+            } if (ignore) {
+                if (!isBooleanOrEmpty(ignore)) {
+                    setWarIgnore(true);
+                    isFault = true;
+                    exposedWar.push('Ignore');
+
+                }
+            }
+
+        }
+        if (isFault) {
+            scrollToFirstPriorityWar(warMap, exposedWar);
+            console.log('test ', isFault);
+            return;
+        }
+        console.log('after test ', isFault);
+
         switch (event.target.id) {
+            case 'button0':
+                clearInputs();
+                break;
             case 'button1':
-                addToSlotsAndOutput(true);
+                toSlotsAndOutput(true);
                 break;
             case 'button2':
-                addToSlotsAndOutput();
+                toSlotsAndOutput();
                 setGenerateData();
                 break;
         }
@@ -342,45 +366,34 @@ const SlotsGeneration = () => {
                         <Distance />    <Slider name={"Save to clipboard"} addSpaceH='4px' checked={isClipBChecked} onChange={() => setIsClipBChecked(!isClipBChecked)} />
                     </ConfigSetting>
                 </ConfigWrapper>
-                <UnitName marginLR='0' onChange={(e) => setUnitName(e.target.value)} />
-<<<<<<< HEAD
+                <UnitName id='UnitName' marginLR='0' value={unitName} onChange={(e) => setUnitName(e.target.value)} />
                 <Warning show={warUnitName} top='-40px' marginB='50px' >Unit name is required</Warning>
-=======
-                <Warning show={warUnitName} top='-40px'>Unit name is required</Warning>
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
 
-                <StandardInput marginLR='0' width='100%' placeholder="Initially expanded" onChange={(e) => setInExpand(e.target.value)} />
+                <StandardInput id='InExpand' marginLR='0' width='100%' placeholder="Initially expanded" value={inExpand} onChange={(e) => setInExpand(e.target.value)} />
                 <Warning show={warInExpand} marginB='10px' >Only boolean type accepted</Warning>
 
-                <StandardInput marginLR='0' placeholder="Priority load" onChange={(e) => setPriorityLoad(e.target.value)} />
+                <StandardInput id='PriorityLoad' marginLR='0' placeholder="Priority load" value={priorityLoad} onChange={(e) => setPriorityLoad(e.target.value)} />
                 <Warning show={warPriorityLoad} marginB='10px' >Only boolean type accepted</Warning>
 
-                <StandardInput marginLR='0' placeholder="Collapse empty div" onChange={(e) => setCollapseEDiv(e.target.value)} />
+                <StandardInput id='CollapseEDiv' marginLR='0' placeholder="Collapse empty div" value={collapseEDiv} onChange={(e) => setCollapseEDiv(e.target.value)} />
                 <Warning show={warCollapseEDiv} marginB='10px' >Only boolean type accepted</Warning>
 
-                <StandardInput marginLR='0' placeholder="Header bidding" onChange={(e) => setHeaderBidding(e.target.value)} />
+                <StandardInput id='HeaderBidding' marginLR='0' placeholder="Header bidding" value={headerBidding} onChange={(e) => setHeaderBidding(e.target.value)} />
                 <Warning show={warHeaderBidding} marginB='10px' >Only boolean type accepted</Warning>
 
-                <StandardInput marginLR='0' placeholder="Lazy load" onChange={(e) => setLazyLoad(e.target.value)} />
+                <StandardInput id='LazyLoad' marginLR='0' placeholder="Lazy load" value={lazyLoad} onChange={(e) => setLazyLoad(e.target.value)} />
                 <Warning show={warLazyLoad} marginB='10px' >Only boolean type accepted</Warning>
 
-                <StandardInput marginLR='0' placeholder="Ignore" onChange={(e) => setIgnore(e.target.value)} />
+                <StandardInput id='Ignore' marginLR='0' placeholder="Ignore" value={ignore} onChange={(e) => setIgnore(e.target.value)} />
                 <Warning show={warIgnore} marginB='10px' >Only boolean type accepted</Warning>
 
                 <DistanceInput />
-<<<<<<< HEAD
-                <InputField placeholder="Size [...]" height="15%" onChange={(e) => setSize(e.target.value)} />
+                <InputField id='Size' placeholder="Size [...]" height="15%" value={size} onChange={(e) => setSize(e.target.value)} />
                 <Warning show={warSize} top='10px' marginB='10px' >Size is required</Warning>
-                <InputField placeholder="Size Mapping [...]" onChange={(e) => setSizeMapping(e.target.value)} />
-                <InputField placeholder="Targeting {...}" onChange={(e) => setTargeting(e.target.value)} />
-=======
-                <InputField placeholder="Size" height="15%" onChange={(e) => setSize(e.target.value)} />
-                <Warning show={warSize} top='10px' marginB='10px' >Size is required</Warning>
-                <InputField placeholder="Size Mapping" onChange={(e) => setSizeMapping(e.target.value)} />
-                <InputField placeholder="Targeting" onChange={(e) => setTargeting(e.target.value)} />
->>>>>>> 40ed32c001db368c4c94c51ed56f57e7b55fd155
+                <InputField id='SizeMapping' placeholder="Size Mapping [...]" value={sizeMapping} onChange={(e) => setSizeMapping(e.target.value)} />
+                <InputField id='Targeting' placeholder="Targeting {...}" height="15%" value={targeting} onChange={(e) => setTargeting(e.target.value)} />
                 <OutputField style={{ color: (output === "Output") ? " grey" : null }} dangerouslySetInnerHTML={{ __html: output }}></OutputField>
-                <ButtonArea name1={"Add Unit"} name2={"Generate"} color1='#ffc107' onClick={generateOrAdd} top="14px" justify="flex-end" />
+                <ButtonArea name1={"Add Unit"} name0={"Clear"} name2={"Generate"} color0='#ffc107' color1='#218838' onClick={generateOrAdd} top="14px" justify="flex-end" />
             </WrapAreas>
         </SimpleFlexWrapper >
     );
